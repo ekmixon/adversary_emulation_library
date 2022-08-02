@@ -14,9 +14,7 @@ def cspretty(buf_payload):
     print("\n\n\t[+} Replace the shelcode buffer within Msfpayload.cs of hollow")
 
 if __name__ == "__main__":
-    xor_encoded_payload = []
     key = 0x42 # Ensure this key matches the hollow project.
     print("\t[+] Using key %s" % hex(key))
-    for i in payload:
-        xor_encoded_payload.append(hex(i ^ key))
+    xor_encoded_payload = [hex(i ^ key) for i in payload]
     cspretty(xor_encoded_payload)

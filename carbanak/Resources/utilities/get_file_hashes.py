@@ -30,7 +30,7 @@ import sys
 def get_file_paths(target_dir):
     """ Returns a list of files with their full path """
     dir_listing = os.listdir(target_dir)
-    all_files = list()
+    all_files = []
     for file in dir_listing:
         full_path = os.path.join(target_dir, file)
         if os.path.isdir(full_path):

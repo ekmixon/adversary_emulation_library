@@ -45,7 +45,7 @@ except ImportError:
 def get_file_paths(target_dir):
     """ Returns a list of files with their full path """
     dir_listing = os.listdir(target_dir)
-    all_files = list()
+    all_files = []
     for file in dir_listing:
         full_path = os.path.join(target_dir, file)
         if os.path.isdir(full_path):
@@ -57,7 +57,7 @@ def get_file_paths(target_dir):
 
 def zip_encrypt_file(file_to_encrypt, password):
     """ Zip compress file with password """
-    dst_file = file_to_encrypt + ".zip"
+    dst_file = f"{file_to_encrypt}.zip"
     print("[+] Zip-Encrypting file: ", file_to_encrypt)
 
     # Ignore deprecation warnings so we don't flood the console with garbage
@@ -91,7 +91,7 @@ def delete_file(file_to_delete, quiet):
         os.remove(file_to_delete)
 
     else:
-        print(f"Skipping file deletion")
+        print("Skipping file deletion")
 
 
 def main():

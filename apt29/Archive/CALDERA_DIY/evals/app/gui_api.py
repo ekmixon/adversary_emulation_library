@@ -11,4 +11,4 @@ class GuiApi(BaseWorld):
     @check_authorization
     @template('evals.html')
     async def splash(self, request):
-        return dict()
+        return {}

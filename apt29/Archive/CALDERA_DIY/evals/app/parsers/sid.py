@@ -12,9 +12,8 @@ class Parser(BaseParser):
 
     def sid_parser(self, text):
         if text and len(text) > 0:
-            value = re.search(r'S-(\d-?){1,34}', text)
-            if value:
-                return [value.group(0)[:-1]]
+            if value := re.search(r'S-(\d-?){1,34}', text):
+                return [value[0][:-1]]
             else:
                 print("[!] Error parsing SID")
 
@@ -23,14 +22,16 @@ class Parser(BaseParser):
         try:
             parse_data = self.sid_parser(blob)
             for match in parse_data:
-                for mp in self.mappers:
-                    relationships.append(
-                        Relationship(source=(mp.source, match),
-                                     edge=mp.edge,
-                                     target=(mp.target, None)
-                                     )
+                relationships.extend(
+                    Relationship(
+                        source=(mp.source, match),
+                        edge=mp.edge,
+                        target=(mp.target, None),
                     )
+                    for mp in self.mappers
+                )
+
         except Exception:
-            import pdb; pdb.set_trace()
-            pass
+            import pdb
+            pdb.set_trace()
         return relationships

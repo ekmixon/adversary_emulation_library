@@ -146,7 +146,7 @@ def convert(ctid_yaml_path, plugin_path):
 
 def main():
     if len(sys.argv) != 3:
-        print(f"Usage:", sys.argv[0], "<ctid_yaml_path>", "<plugin_path>")
+        print("Usage:", sys.argv[0], "<ctid_yaml_path>", "<plugin_path>")
         exit(1)
     convert(ctid_yaml_path=sys.argv[1], plugin_path=sys.argv[2])
 

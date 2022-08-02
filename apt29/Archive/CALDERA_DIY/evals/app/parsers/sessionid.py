@@ -12,9 +12,8 @@ class Parser(BaseParser):
 
     def sessionid_parser(self, text):
         if text and len(text) > 0:
-            value = re.search(r'\s\d', text)
-            if value:
-                return [value.group(0)]
+            if value := re.search(r'\s\d', text):
+                return [value[0]]
             else:
                 print("[!!!] Session id parser not found")
 
@@ -23,13 +22,15 @@ class Parser(BaseParser):
         try:
             parse_data = self.sessionid_parser(blob)
             for match in parse_data:
-                for mp in self.mappers:
-                    relationships.append(
-                        Relationship(source=(mp.source, match),
-                                     edge=mp.edge,
-                                     target=(mp.target, None)
-                                     )
+                relationships.extend(
+                    Relationship(
+                        source=(mp.source, match),
+                        edge=mp.edge,
+                        target=(mp.target, None),
                     )
+                    for mp in self.mappers
+                )
+
         except Exception:
             pass
         return relationships

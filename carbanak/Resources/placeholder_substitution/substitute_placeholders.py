@@ -25,7 +25,7 @@ def get_argparse():
 
 def substitute_values(contents, substitutions):
     for sub in substitutions:
-        value = sub['value'] if sub['value'] else sub['default']
+        value = sub['value'] or sub['default']
         contents = contents.replace(sub['name'], value)
     return contents
 

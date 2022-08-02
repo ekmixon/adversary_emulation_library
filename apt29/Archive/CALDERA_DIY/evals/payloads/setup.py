@@ -9,7 +9,7 @@ def main():
   for filename in os.listdir():
     extension = os.path.splitext(filename)[1]
 
-    if extension != ".ps1" and extension != ".txt":
+    if extension not in [".ps1", ".txt"]:
       continue
 
     with fileinput.FileInput(filename, inplace=True) as FILE:

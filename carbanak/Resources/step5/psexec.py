@@ -80,7 +80,7 @@ class PSEXEC:
     def run(self, remoteName, remoteHost):
 
         stringbinding = r'ncacn_np:%s[\pipe\svcctl]' % remoteName
-        logging.debug('StringBinding %s'%stringbinding)
+        logging.debug(f'StringBinding {stringbinding}')
         rpctransport = transport.DCERPCTransportFactory(stringbinding)
         rpctransport.set_dport(self.__port)
         rpctransport.setRemoteHost(remoteHost)
@@ -96,21 +96,19 @@ class PSEXEC:
     def openPipe(self, s, tid, pipe, accessMask):
         pipeReady = False
         tries = 50
-        while pipeReady is False and tries > 0:
+        while not pipeReady and tries > 0:
             try:
                 s.waitNamedPipe(tid,pipe)
                 pipeReady = True
             except:
                 tries -= 1
                 time.sleep(2)
-                pass
-
         if tries == 0:
             raise Exception('Pipe not ready, aborting')
 
-        fid = s.openFile(tid,pipe,accessMask, creationOption = 0x40, fileAttributes = 0x80)
-
-        return fid
+        return s.openFile(
+            tid, pipe, accessMask, creationOption=0x40, fileAttributes=0x80
+        )
 
     def doStuff(self, rpctransport):
 
@@ -153,7 +151,7 @@ class PSEXEC:
             if self.__copyFile is not None:
                 installService.copy_file(self.__copyFile, installService.getShare(), os.path.basename(self.__copyFile))
                 # And we change the command to be executed to this filename
-                self.__command = os.path.basename(self.__copyFile) + ' ' + self.__command
+                self.__command = f'{os.path.basename(self.__copyFile)} {self.__command}'
 
             tid = s.connectTree('IPC$')
             fid_main = self.openPipe(s,tid,r'\RemCom_communicaton',0x12019f)
@@ -209,7 +207,7 @@ class PSEXEC:
                 import traceback
                 traceback.print_exc()
             logging.debug(str(e))
-            if unInstalled is False:
+            if not unInstalled:
                 installService.uninstall()
                 if self.__copyFile is not None:
                     s.deleteFile(installService.getShare(), os.path.basename(self.__copyFile))
@@ -346,14 +344,11 @@ class RemoteShell(cmd.Cmd):
 
             import ntpath
             filename = ntpath.basename(src_path)
-            fh = open(filename,'wb')
-            logging.info("Downloading %s\\%s" % (self.share, src_path))
-            self.transferClient.getFile(self.share, src_path, fh.write)
-            fh.close()
+            with open(filename,'wb') as fh:
+                logging.info("Downloading %s\\%s" % (self.share, src_path))
+                self.transferClient.getFile(self.share, src_path, fh.write)
         except Exception as e:
             logging.critical(str(e))
-            pass
-
         self.send_data('\r\n')
 
     def do_put(self, s):
@@ -369,19 +364,16 @@ class RemoteShell(cmd.Cmd):
                 dst_path = '/'
 
             src_file = os.path.basename(src_path)
-            fh = open(src_path, 'rb')
-            f = dst_path + '/' + src_file
-            pathname = f.replace('/','\\')
-            logging.info("Uploading %s to %s\\%s" % (src_file, self.share, dst_path))
-            if PY3:
-                self.transferClient.putFile(self.share, pathname, fh.read)
-            else:
-                self.transferClient.putFile(self.share, pathname.decode(sys.stdin.encoding), fh.read)
-            fh.close()
+            with open(src_path, 'rb') as fh:
+                f = f'{dst_path}/{src_file}'
+                pathname = f.replace('/','\\')
+                logging.info("Uploading %s to %s\\%s" % (src_file, self.share, dst_path))
+                if PY3:
+                    self.transferClient.putFile(self.share, pathname, fh.read)
+                else:
+                    self.transferClient.putFile(self.share, pathname.decode(sys.stdin.encoding), fh.read)
         except Exception as e:
             logging.error(str(e))
-            pass
-
         self.send_data('\r\n')
 
     def do_lcd(self, s):
@@ -484,7 +476,7 @@ if __name__ == '__main__':
 
     #In case the password contains '@'
     if '@' in remoteName:
-        password = password + '@' + remoteName.rpartition('@')[0]
+        password = f'{password}@' + remoteName.rpartition('@')[0]
         remoteName = remoteName.rpartition('@')[2]
 
     if domain is None:
